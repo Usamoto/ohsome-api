@@ -290,6 +290,24 @@ public class ExecutionUtils {
       servletResponse = setCsvSettingsInServletResponse(servletResponse);
       CSVWriter writer = writeComments(servletResponse, comments);
       Pair<List<String>, List<String[]>> rows;
+      if (resultSet.length == 0) {
+        try {
+          List<String> list = new ArrayList<>();
+          list.add("");
+          List<String[]> listArray = new ArrayList<String[]>();
+          String[] array = {""};
+          listArray.add(array);
+          Pair<List<String>, List<String[]>> pair =
+              new ImmutablePair<List<String>, List<String[]>>(list, listArray);
+          rows = pair;
+          writer.writeNext(rows.getLeft().toArray(new String[rows.getLeft().size()]), false);
+          writer.writeAll(rows.getRight(), false);
+          writer.close();
+          return;
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
       if (resultSet instanceof GroupByResult[]) {
         GroupByResult result = (GroupByResult) resultSet[0];
         if (result.getResult() instanceof UsersResult[]) {
